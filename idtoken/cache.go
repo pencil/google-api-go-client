@@ -22,7 +22,7 @@ type cachingClient struct {
 	// If nil, time.Now is used.
 	clock func() time.Time
 
-	mu    sync.Mutex
+	mu    sync.RWMutex
 	certs map[string]*cachedResponse
 }
 
@@ -73,8 +73,8 @@ func (c *cachingClient) now() time.Time {
 }
 
 func (c *cachingClient) get(url string) (*certResponse, bool) {
-	c.mu.Lock()
-	defer c.mu.Unlock()
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	cachedResp, ok := c.certs[url]
 	if !ok {
 		return nil, false
